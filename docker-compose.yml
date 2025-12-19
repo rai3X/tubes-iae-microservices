@@ -1,0 +1,132 @@
+services:
+  # MySQL Database
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: user_service_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # User Service
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    environment:
+      PORT: 4001
+      DB_HOST: mysql-db
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+      DB_NAME: user_service_db
+    ports:
+      - "4001:4001"
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  # Product Service
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    container_name: product-service
+    environment:
+      PORT: 4002
+      DB_HOST: mysql-db
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+      DB_NAME: product_service_db
+      USER_SERVICE_URL: http://user-service:4001/graphql
+    ports:
+      - "4002:4002"
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  # Order Service
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: order-service
+    environment:
+      PORT: 4003
+      DB_HOST: mysql-db
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+      DB_NAME: order_service_db
+      USER_SERVICE_URL: http://user-service:4001/graphql
+      PRODUCT_SERVICE_URL: http://product-service:4002/graphql
+    ports:
+      - "4003:4003"
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  # Gateway GraphQL
+  gateway-graphql:
+    build:
+      context: ./gateway-graphql
+      dockerfile: Dockerfile
+    container_name: gateway-graphql
+    environment:
+      PORT: 4000
+      USER_SERVICE_URL: http://user-service:4001/graphql
+      PRODUCT_SERVICE_URL: http://product-service:4002/graphql
+      ORDER_SERVICE_URL: http://order-service:4003/graphql
+    ports:
+      - "4000:4000"
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  # Frontend Service
+  frontend-service:
+    build:
+      context: ./frontend-service
+      dockerfile: Dockerfile
+    container_name: frontend-service
+    environment:
+      PORT: 3000
+      GATEWAY_URL: http://gateway-graphql:4000/graphql
+    ports:
+      - "3000:3000"
+    depends_on:
+      - gateway-graphql
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+networks:
+  microservices-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+

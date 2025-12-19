@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphQL Microservices Client</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛍️ E-Commerce GraphQL Client</h1>
+            <p>Microservices Integration - User, Product & Order Management</p>
+        </header>
+
+        <div class="main-content">
+            <section class="section">
+                <h2>📊 Query Data</h2>
+                
+                <div class="query-grid">
+                    <div class="query-card">
+                        <h3>👤 Users</h3>
+                        <button class="btn btn-primary" onclick="queryUsers()">Get All Users</button>
+                        <div class="input-group">
+                            <input type="number" id="userId" placeholder="User ID" min="1">
+                            <button class="btn btn-secondary" onclick="queryUserById()">Get User By ID</button>
+                        </div>
+                    </div>
+
+                    <div class="query-card">
+                        <h3>📦 Products</h3>
+                        <button class="btn btn-primary" onclick="queryProducts()">Get All Products</button>
+                        <div class="input-group">
+                            <input type="number" id="productId" placeholder="Product ID" min="1">
+                            <button class="btn btn-secondary" onclick="queryProductById()">Get Product By ID</button>
+                        </div>
+                    </div>
+
+                    <div class="query-card">
+                        <h3>🛒 Orders</h3>
+                        <button class="btn btn-primary" onclick="queryOrders()">Get All Orders</button>
+                        <div class="input-group">
+                            <input type="number" id="orderId" placeholder="Order ID" min="1">
+                            <button class="btn btn-secondary" onclick="queryOrderById()">Get Order By ID</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>✏️ Mutations</h2>
+
+                <div class="mutation-tabs">
+                    <button class="tab-btn active" onclick="showTab('user')">User</button>
+                    <button class="tab-btn" onclick="showTab('product')">Product</button>
+                    <button class="tab-btn" onclick="showTab('order')">Order</button>
+                </div>
+
+                <div id="user-tab" class="tab-content active">
+                    <div class="mutation-grid">
+                        <div class="mutation-card">
+                            <h3>➕ Create User</h3>
+                            <form id="createUserForm" onsubmit="createUser(event)">
+                                <input type="text" id="userName" placeholder="Name" required>
+                                <input type="email" id="userEmail" placeholder="Email" required>
+                                <select id="userRole" required>
+                                    <option value="">Select Role</option>
+                                    <option value="user">User</option>
+                                    <option value="seller">Seller</option>
+                                </select>
+                                <button type="submit" class="btn btn-success">Create User</button>
+                            </form>
+                        </div>
+
+                        <div class="mutation-card">
+                            <h3>🗑️ Delete User</h3>
+                            <form id="deleteUserForm" onsubmit="deleteUser(event)">
+                                <input type="number" id="deleteUserId" placeholder="User ID" min="1" required>
+                                <button type="submit" class="btn btn-danger">Delete User</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Mutations -->
+                <div id="product-tab" class="tab-content">
+                    <div class="mutation-grid">
+                        <div class="mutation-card">
+                            <h3>➕ Create Product</h3>
+                            <form id="createProductForm" onsubmit="createProduct(event)">
+                                <input type="text" id="productName" placeholder="Product Name" required>
+                                <input type="number" id="productPrice" placeholder="Price" min="1" required>
+                                <input type="number" id="productStock" placeholder="Stock" min="0" required>
+                                <input type="number" id="productSellerId" placeholder="Seller ID" min="1" required>
+                                <button type="submit" class="btn btn-success">Create Product</button>
+                            </form>
+                        </div>
+
+                        <div class="mutation-card">
+                            <h3>📝 Update Stock</h3>
+                            <form id="updateStockForm" onsubmit="updateProductStock(event)">
+                                <input type="number" id="updateProductId" placeholder="Product ID" min="1" required>
+                                <input type="number" id="updateSellerId" placeholder="Seller ID" min="1" required>
+                                <input type="number" id="updateStock" placeholder="New Stock" min="0" required>
+                                <button type="submit" class="btn btn-warning">Update Stock</button>
+                            </form>
+                        </div>
+
+                        <div class="mutation-card">
+                            <h3>🗑️ Delete Product</h3>
+                            <form id="deleteProductForm" onsubmit="deleteProduct(event)">
+                                <input type="number" id="deleteProductId" placeholder="Product ID" min="1" required>
+                                <input type="number" id="deleteProductSellerId" placeholder="Seller ID" min="1" required>
+                                <button type="submit" class="btn btn-danger">Delete Product</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Mutations -->
+                <div id="order-tab" class="tab-content">
+                    <div class="mutation-grid">
+                        <div class="mutation-card">
+                            <h3>➕ Create Order</h3>
+                            <form id="createOrderForm" onsubmit="createOrder(event)">
+                                <input type="number" id="orderUserId" placeholder="User ID" min="1" required>
+                                <input type="number" id="orderProductId" placeholder="Product ID" min="1" required>
+                                <input type="number" id="orderQuantity" placeholder="Quantity" min="1" required>
+                                <button type="submit" class="btn btn-success">Create Order</button>
+                            </form>
+                        </div>
+
+                        <div class="mutation-card">
+                            <h3>🗑️ Delete Order</h3>
+                            <form id="deleteOrderForm" onsubmit="deleteOrder(event)">
+                                <input type="number" id="deleteOrderId" placeholder="Order ID" min="1" required>
+                                <button type="submit" class="btn btn-danger">Delete Order</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RESULTS SECTION -->
+            <section class="section">
+                <h2>📋 Results</h2>
+                <div class="results-container">
+                    <div id="loading" class="loading" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Loading...</p>
+                    </div>
+                    <div id="results" class="results"></div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
