@@ -1,4 +1,4 @@
-# 🌐 UTS Project Based - Microservice Architecture
+# 🌐 TUGAS BESAR IAE
 
 ### Mata Kuliah: Integrasi Aplikasi Enterprise  
 ### Dosen Pengampu: HLZ 
@@ -73,7 +73,7 @@
 
 ```bash
 # Clone repository
-git clone <URL_REPOSITORY>
+git clone https://github.com/rai3X/tubes-iae-microservices.git
 cd <NAMA_FOLDER>
 
 # Jalankan semua services dengan Docker
